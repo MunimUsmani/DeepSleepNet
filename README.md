@@ -130,9 +130,8 @@ Use it to explain:
 
 Recommended image:
 
-```markdown
-<img width="781" height="438" alt="image" src="https://github.com/user-attachments/assets/47fc0f0f-141d-4c7e-8687-d372da0ec07d" />```
-
+<img width="781" height="438" alt="image" src="https://github.com/user-attachments/assets/47fc0f0f-141d-4c7e-8687-d372da0ec07d" />
+<img width="748" height="243" alt="image" src="https://github.com/user-attachments/assets/5cd688ab-2b61-4ef3-8039-e7a1a3fa9fa6" />
 ---
 
 ### 2. Transition Error Analysis
@@ -147,8 +146,8 @@ This is clinically useful because many sleep-stage errors happen at boundaries s
 
 Recommended image:
 
-```markdown
 <img width="741" height="1168" alt="image" src="https://github.com/user-attachments/assets/332372b7-1644-484c-8054-869fb3abd2d1" />
+<img width="733" height="367" alt="image" src="https://github.com/user-attachments/assets/e41e8563-7d83-4d21-bf4f-b2fef4768130" />
 ---
 
 ### 3. Learned Filter Visualization
@@ -166,10 +165,8 @@ This visualization helps show that the network learned meaningful EEG-related fi
 
 Recommended image:
 
-```markdown
 <img width="1460" height="467" alt="image" src="https://github.com/user-attachments/assets/013aaa6c-8ad2-4438-b24a-6ad954dc5bc9" />
-<img width="769" height="407" alt="image" src="https://github.com/user-attachments/assets/5ee3e53c-2483-4517-a07e-e440069f6c10" />```
-
+<img width="769" height="407" alt="image" src="https://github.com/user-attachments/assets/5ee3e53c-2483-4517-a07e-e440069f6c10" />
 ---
 
 ### 4. Full-Night Hypnogram Comparison
@@ -180,10 +177,8 @@ A hypnogram is the sleep-stage timeline that a sleep lab would inspect. Showing 
 
 Recommended image:
 
-```markdown
 <img width="785" height="435" alt="image" src="https://github.com/user-attachments/assets/2597ffe1-d78b-4dcd-851d-8c56700ed0c5" />
-```
-
+<img width="755" height="350" alt="image" src="https://github.com/user-attachments/assets/8289c5c9-8011-487d-96b9-b6148072927e" />
 ---
 
 ### 5. F1 Benchmark
@@ -194,10 +189,9 @@ The F1 benchmark helps compare your model against reference values from the orig
 
 Recommended image:
 
-```markdown
-<img width="1460" height="572" alt="image" src="https://github.com/user-attachments/assets/62426447-9c78-4cb6-b7c8-12e2f6883557" />
-```
+<img width="1460" height="572" alt="image" src="https://github.com/user-attachments/assets/7051aa8e-03ec-4147-9e32-4a2eb176be24" />
 
+<img width="794" height="392" alt="image" src="https://github.com/user-attachments/assets/bebec3b4-29f6-40c0-aa8e-2deb6734bae2" />
 ---
 
 ## Architecture
