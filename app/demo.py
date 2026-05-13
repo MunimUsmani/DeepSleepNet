@@ -18,19 +18,13 @@ from sklearn.metrics import (
     classification_report,
 )
 
-# Allow imports from project root
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(PROJECT_ROOT))
 
 from src.model import DeepSleepNet
 
-
-# ─────────────────────────────────────────────────────────────
-# App config
-# ─────────────────────────────────────────────────────────────
-
 st.set_page_config(
-    page_title="DeepSleepNet Sleep Stage Classifier",
+    page_title="DeepSleepNet",
     page_icon="😴",
     layout="wide",
 )
@@ -65,11 +59,6 @@ INV_HYPNOGRAM_ORDER = {v: k for k, v in HYPNOGRAM_ORDER.items()}
 
 DEFAULT_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "all_subjects.pkl"
 DEFAULT_CKPT_DIR = PROJECT_ROOT / "checkpoints"
-
-
-# ─────────────────────────────────────────────────────────────
-# Helpers
-# ─────────────────────────────────────────────────────────────
 
 @st.cache_resource
 def load_model_from_path(checkpoint_path: str | None):
@@ -359,7 +348,6 @@ def plot_filter_visualization(model, fs=100):
     for ax, (title, name, conv, k) in zip(axes, selected):
         weights = conv.weight.detach().cpu().numpy()
 
-        # Shape usually: (out_channels, in_channels, kernel_size)
         filters = weights[:, 0, :]
         n_plot = min(8, filters.shape[0])
 
@@ -382,7 +370,6 @@ def plot_filter_visualization(model, fs=100):
         weights = conv.weight.detach().cpu().numpy()
         filters = weights[:, 0, :]
 
-        # Average magnitude response across filters
         fft_mag = np.abs(np.fft.rfft(filters, axis=1))
         freqs = np.fft.rfftfreq(filters.shape[1], d=1 / fs)
         mean_response = fft_mag.mean(axis=0)
@@ -473,11 +460,6 @@ def display_probability_bars(probs):
             unsafe_allow_html=True,
         )
 
-
-# ─────────────────────────────────────────────────────────────
-# Sidebar
-# ─────────────────────────────────────────────────────────────
-
 st.title("😴 DeepSleepNet Sleep Stage Classifier")
 st.caption(
     "Research demo for single-channel EEG sleep staging with DeepSleepNet-style CNN + sequence modeling."
@@ -555,11 +537,6 @@ with st.sidebar:
     else:
         reference_f1 = None
 
-
-# ─────────────────────────────────────────────────────────────
-# Load model
-# ─────────────────────────────────────────────────────────────
-
 if use_local_checkpoint and selected_checkpoint_path:
     model = load_model_from_path(selected_checkpoint_path)
     st.sidebar.success(f"Loaded {Path(selected_checkpoint_path).name}")
@@ -570,11 +547,6 @@ else:
     model = DeepSleepNet(n_classes=5)
     model.eval()
     st.sidebar.warning("No checkpoint loaded — random weights")
-
-
-# ─────────────────────────────────────────────────────────────
-# Load data
-# ─────────────────────────────────────────────────────────────
 
 data = None
 
@@ -588,11 +560,6 @@ else:
     if uploaded_data is not None:
         data = load_pickle_from_upload(uploaded_data)
         st.sidebar.success("Uploaded data loaded")
-
-
-# ─────────────────────────────────────────────────────────────
-# No data fallback
-# ─────────────────────────────────────────────────────────────
 
 if data is None:
     st.info("Load `data/processed/all_subjects.pkl` or upload a processed `.pkl` file to start.")
@@ -617,11 +584,6 @@ if data is None:
         st.caption("Hypnogram, confusion matrix, transitions, filters.")
 
     st.stop()
-
-
-# ─────────────────────────────────────────────────────────────
-# Prepare data
-# ─────────────────────────────────────────────────────────────
 
 X_all, y_all, subjects_all, raw_data = normalize_data(data)
 
@@ -664,11 +626,6 @@ if len(X) == 0:
     st.error("No epochs found for selected subject.")
     st.stop()
 
-
-# ─────────────────────────────────────────────────────────────
-# Predictions
-# ─────────────────────────────────────────────────────────────
-
 with st.spinner("Running model predictions..."):
     preds, probs_all = predict_all(model, X)
 
@@ -689,10 +646,6 @@ m3.metric("Cohen Kappa", f"{kappa:.3f}")
 m4.metric("F1-macro", f"{f1_macro:.3f}")
 
 
-# ─────────────────────────────────────────────────────────────
-# Tabs
-# ─────────────────────────────────────────────────────────────
-
 tab_epoch, tab_hypno, tab_conf, tab_trans, tab_filters, tab_bench = st.tabs(
     [
         "Epoch explorer",
@@ -703,11 +656,6 @@ tab_epoch, tab_hypno, tab_conf, tab_trans, tab_filters, tab_bench = st.tabs(
         "F1 benchmark",
     ]
 )
-
-
-# ─────────────────────────────────────────────────────────────
-# Tab 1: Epoch explorer
-# ─────────────────────────────────────────────────────────────
 
 with tab_epoch:
     st.subheader("Epoch-level prediction explorer")
@@ -733,11 +681,6 @@ with tab_epoch:
         f"Each epoch is {epoch_sec} seconds long."
     )
 
-
-# ─────────────────────────────────────────────────────────────
-# Tab 2: Hypnogram comparison
-# ─────────────────────────────────────────────────────────────
-
 with tab_hypno:
     st.subheader("True vs predicted full-night hypnogram")
 
@@ -761,11 +704,6 @@ with tab_hypno:
 
     with st.expander("View epoch-by-epoch hypnogram table"):
         st.dataframe(hyp_df, use_container_width=True)
-
-
-# ─────────────────────────────────────────────────────────────
-# Tab 3: Confusion matrix
-# ─────────────────────────────────────────────────────────────
 
 with tab_conf:
     st.subheader("Confusion matrix")
@@ -806,11 +744,6 @@ with tab_conf:
     with st.expander("Classification report"):
         st.dataframe(report_df, use_container_width=True)
 
-
-# ─────────────────────────────────────────────────────────────
-# Tab 4: Transition-rule analysis
-# ─────────────────────────────────────────────────────────────
-
 with tab_trans:
     st.subheader("Transition-rule error analysis")
 
@@ -841,11 +774,6 @@ with tab_trans:
             use_container_width=True,
         )
 
-
-# ─────────────────────────────────────────────────────────────
-# Tab 5: Learned filter visualization
-# ─────────────────────────────────────────────────────────────
-
 with tab_filters:
     st.subheader("Learned CNN filter visualization")
 
@@ -873,11 +801,6 @@ with tab_filters:
               that the network learned meaningful EEG features, not just arbitrary patterns.
             """
         )
-
-
-# ─────────────────────────────────────────────────────────────
-# Tab 6: F1 benchmark
-# ─────────────────────────────────────────────────────────────
 
 with tab_bench:
     st.subheader("Per-class F1 benchmark")
