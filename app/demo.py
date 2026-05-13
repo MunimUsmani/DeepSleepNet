@@ -24,7 +24,7 @@ sys.path.append(str(PROJECT_ROOT))
 from src.model import DeepSleepNet
 
 st.set_page_config(
-    page_title="DeepSleepNet",
+    page_title="DeepSleepNet Sleep Stage Classifier",
     page_icon="😴",
     layout="wide",
 )
@@ -59,6 +59,7 @@ INV_HYPNOGRAM_ORDER = {v: k for k, v in HYPNOGRAM_ORDER.items()}
 
 DEFAULT_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "all_subjects.pkl"
 DEFAULT_CKPT_DIR = PROJECT_ROOT / "checkpoints"
+DEFAULT_SUMMARY_PATH = DEFAULT_CKPT_DIR / "results_summary_resume.pkl"
 
 @st.cache_resource
 def load_model_from_path(checkpoint_path: str | None):
@@ -145,6 +146,37 @@ def get_stage_labels(values):
     return [STAGE_NAMES[int(v)] for v in values]
 
 
+def load_loso_summary(summary_path: Path):
+    if not summary_path.exists():
+        return None
+
+    with open(summary_path, "rb") as f:
+        results = pickle.load(f)
+
+    return results
+
+
+def compute_summary_metrics_from_loso(results):
+    if not results:
+        return None
+
+    accs = np.array([r["acc"] for r in results], dtype=float)
+    kappas = np.array([r["kappa"] for r in results], dtype=float)
+    f1_macs = np.array([r["f1_mac"] for r in results], dtype=float)
+    f1_per = np.array([r["f1_per"] for r in results], dtype=float)
+
+    return {
+        "accuracy_mean": float(np.mean(accs)),
+        "accuracy_std": float(np.std(accs)),
+        "kappa_mean": float(np.mean(kappas)),
+        "kappa_std": float(np.std(kappas)),
+        "f1_macro_mean": float(np.mean(f1_macs)),
+        "f1_macro_std": float(np.std(f1_macs)),
+        "f1_per_mean": np.mean(f1_per, axis=0),
+        "n_folds": len(results),
+    }
+
+
 def plot_confusion_matrix(y_true, y_pred, normalize=True):
     cm = confusion_matrix(y_true, y_pred, labels=list(range(5)))
 
@@ -187,14 +219,6 @@ def compute_transition_error_table(y_true, y_pred):
     """
     Builds a table of errors based on previous true stage -> current true stage,
     and what the model predicted for the current stage.
-
-    Example row:
-    Wake → N1 predicted as Wake
-
-    This highlights clinically meaningful mistakes like:
-    N1 confused as Wake
-    N1 confused as N2
-    REM confused as Wake/N1
     """
     rows = []
 
@@ -241,7 +265,6 @@ def plot_transition_heatmap(transition_error_df):
         aggfunc="sum",
     )
 
-    # Keep columns in sleep-stage order
     for stage in STAGE_NAMES:
         if stage not in pivot.columns:
             pivot[stage] = 0
@@ -317,11 +340,6 @@ def find_conv1d_layers(model):
 def plot_filter_visualization(model, fs=100):
     """
     Visualizes learned Conv1D filters.
-
-    We try to separate the smallest-kernel and largest-kernel Conv1D layers.
-    This is robust enough for most DeepSleepNet-style implementations:
-    - small temporal filters should capture short patterns like spindles
-    - large temporal filters should capture slower rhythm patterns
     """
     convs = find_conv1d_layers(model)
 
@@ -347,7 +365,6 @@ def plot_filter_visualization(model, fs=100):
 
     for ax, (title, name, conv, k) in zip(axes, selected):
         weights = conv.weight.detach().cpu().numpy()
-
         filters = weights[:, 0, :]
         n_plot = min(8, filters.shape[0])
 
@@ -400,8 +417,14 @@ def plot_filter_visualization(model, fs=100):
     return (fig_time, fig_freq), note
 
 
-def plot_f1_benchmark(y_true, y_pred, paper_f1_values=None):
-    your_f1 = f1_score(
+def plot_f1_benchmark(y_true, y_pred, paper_f1_values=None, loso_f1_values=None):
+    """
+    Fixed behavior:
+    - If paper_f1_values is None, paper/reference bars and column are hidden.
+    - If paper_f1_values exists, paper/reference bars are shown.
+    - If loso_f1_values exists, an additional final LOSO mean bar is shown.
+    """
+    selected_f1 = f1_score(
         y_true,
         y_pred,
         average=None,
@@ -409,17 +432,47 @@ def plot_f1_benchmark(y_true, y_pred, paper_f1_values=None):
         zero_division=0,
     )
 
-    if paper_f1_values is None:
-        paper_f1_values = [np.nan] * 5
+    show_reference = paper_f1_values is not None
+    show_loso = loso_f1_values is not None
 
     x = np.arange(len(STAGE_NAMES))
-    width = 0.35
 
-    fig, ax = plt.subplots(figsize=(9, 4))
-    ax.bar(x - width / 2, your_f1, width, label="Your model")
+    n_bars = 1 + int(show_loso) + int(show_reference)
+    width = 0.75 / n_bars
 
-    if not all(np.isnan(paper_f1_values)):
-        ax.bar(x + width / 2, paper_f1_values, width, label="Paper/reference")
+    fig, ax = plt.subplots(figsize=(10, 4))
+
+    offset_index = 0
+
+    if n_bars == 1:
+        ax.bar(x, selected_f1, width, label="Current selection")
+    else:
+        start_offset = -0.75 / 2 + width / 2
+
+        ax.bar(
+            x + start_offset + offset_index * width,
+            selected_f1,
+            width,
+            label="Current selection",
+        )
+        offset_index += 1
+
+        if show_loso:
+            ax.bar(
+                x + start_offset + offset_index * width,
+                loso_f1_values,
+                width,
+                label="Final LOSO mean",
+            )
+            offset_index += 1
+
+        if show_reference:
+            ax.bar(
+                x + start_offset + offset_index * width,
+                paper_f1_values,
+                width,
+                label="Paper/reference",
+            )
 
     ax.set_title("Per-class F1 comparison")
     ax.set_xlabel("Sleep stage")
@@ -432,11 +485,18 @@ def plot_f1_benchmark(y_true, y_pred, paper_f1_values=None):
 
     fig.tight_layout()
 
-    df = pd.DataFrame({
+    df_data = {
         "Stage": STAGE_NAMES,
-        "Your F1": your_f1,
-        "Paper/reference F1": paper_f1_values,
-    })
+        "Current selection F1": selected_f1,
+    }
+
+    if show_loso:
+        df_data["Final LOSO mean F1"] = loso_f1_values
+
+    if show_reference:
+        df_data["Paper/reference F1"] = paper_f1_values
+
+    df = pd.DataFrame(df_data)
 
     return fig, df
 
@@ -518,13 +578,23 @@ with st.sidebar:
 
     st.divider()
 
-    st.subheader("Reference F1 values")
-    st.caption("Optional: enter paper/reference F1 values for visual comparison.")
+    st.subheader("F1 comparison settings")
 
-    use_reference_f1 = st.checkbox("Show paper/reference bars", value=False)
+    use_loso_summary = st.checkbox(
+        "Show final LOSO mean F1",
+        value=DEFAULT_SUMMARY_PATH.exists(),
+    )
 
-    reference_f1 = []
+    use_reference_f1 = st.checkbox(
+        "Show paper/reference bars",
+        value=False,
+    )
+
+    reference_f1 = None
+
     if use_reference_f1:
+        st.caption("Enter F1 values from your paper/table. Leave this unchecked if you do not have them.")
+        reference_f1 = []
         for stage in STAGE_NAMES:
             value = st.number_input(
                 f"{stage} reference F1",
@@ -534,8 +604,8 @@ with st.sidebar:
                 step=0.01,
             )
             reference_f1.append(value)
-    else:
-        reference_f1 = None
+        reference_f1 = np.array(reference_f1, dtype=float)
+
 
 if use_local_checkpoint and selected_checkpoint_path:
     model = load_model_from_path(selected_checkpoint_path)
@@ -547,6 +617,18 @@ else:
     model = DeepSleepNet(n_classes=5)
     model.eval()
     st.sidebar.warning("No checkpoint loaded — random weights")
+
+
+loso_results = None
+loso_metrics = None
+
+if use_loso_summary:
+    loso_results = load_loso_summary(DEFAULT_SUMMARY_PATH)
+    if loso_results is not None:
+        loso_metrics = compute_summary_metrics_from_loso(loso_results)
+        st.sidebar.success("Loaded results_summary_resume.pkl")
+    else:
+        st.sidebar.warning("results_summary_resume.pkl not found")
 
 data = None
 
@@ -645,6 +727,14 @@ m2.metric("Accuracy", f"{acc * 100:.1f}%")
 m3.metric("Cohen Kappa", f"{kappa:.3f}")
 m4.metric("F1-macro", f"{f1_macro:.3f}")
 
+if loso_metrics is not None:
+    st.info(
+        f"Final LOSO summary: "
+        f"Accuracy {loso_metrics['accuracy_mean']:.3f} ± {loso_metrics['accuracy_std']:.3f} | "
+        f"Kappa {loso_metrics['kappa_mean']:.3f} ± {loso_metrics['kappa_std']:.3f} | "
+        f"F1-macro {loso_metrics['f1_macro_mean']:.3f} ± {loso_metrics['f1_macro_std']:.3f} | "
+        f"{loso_metrics['n_folds']} folds"
+    )
 
 tab_epoch, tab_hypno, tab_conf, tab_trans, tab_filters, tab_bench = st.tabs(
     [
@@ -805,10 +895,15 @@ with tab_filters:
 with tab_bench:
     st.subheader("Per-class F1 benchmark")
 
+    loso_f1_values = None
+    if loso_metrics is not None:
+        loso_f1_values = loso_metrics["f1_per_mean"]
+
     fig, f1_df = plot_f1_benchmark(
         y,
         preds,
         paper_f1_values=reference_f1,
+        loso_f1_values=loso_f1_values,
     )
 
     st.pyplot(fig, use_container_width=True)
@@ -818,19 +913,34 @@ with tab_bench:
         """
         **How to use this section:**
 
-        - Your model bars are computed from the currently selected subject or all subjects.
-        - Enable **paper/reference bars** in the sidebar and enter the values from the research paper/table.
-        - This creates a direct reproduction-style comparison for your report.
+        - **Current selection F1** is computed from the selected checkpoint on the selected subject/all subjects.
+        - **Final LOSO mean F1** comes from `checkpoints/results_summary_resume.pkl`.
+        - **Paper/reference F1** only appears if you enable it in the sidebar and enter values manually.
         """
     )
 
+    if reference_f1 is None:
+        st.warning(
+            "Paper/reference values are hidden because you did not enable them in the sidebar. "
+            "This is correct behavior; the app should not show fake zero reference values."
+        )
+
     st.markdown("### Current summary")
-    st.write(
-        {
-            "accuracy": float(acc),
-            "cohen_kappa": float(kappa),
-            "f1_macro": float(f1_macro),
-            "epochs": int(len(y)),
-            "selection": selected_subject_label,
-        }
-    )
+
+    summary = {
+        "selection": selected_subject_label,
+        "accuracy": float(acc),
+        "cohen_kappa": float(kappa),
+        "f1_macro": float(f1_macro),
+        "epochs": int(len(y)),
+    }
+
+    if loso_metrics is not None:
+        summary.update({
+            "loso_accuracy_mean": loso_metrics["accuracy_mean"],
+            "loso_kappa_mean": loso_metrics["kappa_mean"],
+            "loso_f1_macro_mean": loso_metrics["f1_macro_mean"],
+            "loso_folds": loso_metrics["n_folds"],
+        })
+
+    st.write(summary)
