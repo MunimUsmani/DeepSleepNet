@@ -536,8 +536,3 @@ REM:  0.502
 2. Kemp, B., Zwinderman, A. H., Tuk, B., Kamphuisen, H. A. C., & Oberye, J. J. L. (2000). **Analysis of a sleep-dependent neuronal feedback loop: the slow-wave microcontinuity of the EEG.** IEEE Transactions on Biomedical Engineering, 47(9), 1185–1194.
 
 3. Goldberger, A. L., Amaral, L. A. N., Glass, L., Hausdorff, J. M., Ivanov, P. C., Mark, R. G., Mietus, J. E., Moody, G. B., Peng, C. K., & Stanley, H. E. (2000). **PhysioBank, PhysioToolkit, and PhysioNet.** Circulation, 101(23), e215–e220.
-1. Supratak, A., Dong, H., Wu, C., & Guo, Y. (2017). **DeepSleepNet: A Model for Automatic Sleep Stage Scoring Based on Raw Single-Channel EEG.** IEEE Transactions on Neural Systems and Rehabilitation Engineering, 25(11), 1998–2008.
-
-2. Kemp, B., Zwinderman, A. H., Tuk, B., Kamphuisen, H. A. C., & Oberye, J. J. L. (2000). **Analysis of a sleep-dependent neuronal feedback loop: the slow-wave microcontinuity of the EEG.** IEEE Transactions on Biomedical Engineering, 47(9), 1185–1194.
-
-3. Goldberger, A. L., Amaral, L. A. N., Glass, L., Hausdorff, J. M., Ivanov, P. C., Mark, R. G., Mietus, J. E., Moody, G. B., Peng, C. K., & Stanley, H. E. (2000). **PhysioBank, PhysioToolkit, and PhysioNet.** Circulation, 101(23), e215–e220.
