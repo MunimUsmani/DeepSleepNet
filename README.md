@@ -131,8 +131,7 @@ Use it to explain:
 Recommended image:
 
 ```markdown
-![Confusion Matrix](assets/confusion-matrix.png)
-```
+<img width="781" height="438" alt="image" src="https://github.com/user-attachments/assets/47fc0f0f-141d-4c7e-8687-d372da0ec07d" />```
 
 ---
 
@@ -149,9 +148,7 @@ This is clinically useful because many sleep-stage errors happen at boundaries s
 Recommended image:
 
 ```markdown
-![Transition Error Analysis](assets/transition-errors.png)
-```
-
+<img width="741" height="1168" alt="image" src="https://github.com/user-attachments/assets/332372b7-1644-484c-8054-869fb3abd2d1" />
 ---
 
 ### 3. Learned Filter Visualization
@@ -170,8 +167,8 @@ This visualization helps show that the network learned meaningful EEG-related fi
 Recommended image:
 
 ```markdown
-![Learned Filters](assets/learned-filters.png)
-```
+<img width="1460" height="467" alt="image" src="https://github.com/user-attachments/assets/013aaa6c-8ad2-4438-b24a-6ad954dc5bc9" />
+<img width="769" height="407" alt="image" src="https://github.com/user-attachments/assets/5ee3e53c-2483-4517-a07e-e440069f6c10" />```
 
 ---
 
@@ -184,7 +181,7 @@ A hypnogram is the sleep-stage timeline that a sleep lab would inspect. Showing 
 Recommended image:
 
 ```markdown
-![Hypnogram Comparison](assets/hypnogram-comparison.png)
+<img width="785" height="435" alt="image" src="https://github.com/user-attachments/assets/2597ffe1-d78b-4dcd-851d-8c56700ed0c5" />
 ```
 
 ---
@@ -198,7 +195,7 @@ The F1 benchmark helps compare your model against reference values from the orig
 Recommended image:
 
 ```markdown
-![F1 Benchmark](assets/f1-benchmark.png)
+<img width="1460" height="572" alt="image" src="https://github.com/user-attachments/assets/62426447-9c78-4cb6-b7c8-12e2f6883557" />
 ```
 
 ---
