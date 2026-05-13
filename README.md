@@ -17,23 +17,31 @@ The project includes real Sleep-EDF preprocessing, leave-one-subject-out evaluat
 
 ### 2. True vs Predicted Hypnogram
 
-![Hypnogram Comparison](assets/hypnogram-comparison.png)
+<img width="785" height="435" alt="image" src="https://github.com/user-attachments/assets/2597ffe1-d78b-4dcd-851d-8c56700ed0c5" />
+<img width="755" height="350" alt="image" src="https://github.com/user-attachments/assets/8289c5c9-8011-487d-96b9-b6148072927e" />
 
 ### 3. Confusion Matrix
 
-![Confusion Matrix](assets/confusion-matrix.png)
+<img width="781" height="438" alt="image" src="https://github.com/user-attachments/assets/47fc0f0f-141d-4c7e-8687-d372da0ec07d" />
+<img width="748" height="243" alt="image" src="https://github.com/user-attachments/assets/5cd688ab-2b61-4ef3-8039-e7a1a3fa9fa6" />
+
 
 ### 4. Transition Error Analysis
 
-![Transition Error Analysis](assets/transition-errors.png)
+<img width="741" height="1168" alt="image" src="https://github.com/user-attachments/assets/332372b7-1644-484c-8054-869fb3abd2d1" />
+<img width="733" height="367" alt="image" src="https://github.com/user-attachments/assets/e41e8563-7d83-4d21-bf4f-b2fef4768130" />
 
 ### 5. Learned CNN Filter Visualization
 
-![Learned Filters](assets/learned-filters.png)
+<img width="1460" height="467" alt="image" src="https://github.com/user-attachments/assets/013aaa6c-8ad2-4438-b24a-6ad954dc5bc9" />
+<img width="769" height="407" alt="image" src="https://github.com/user-attachments/assets/5ee3e53c-2483-4517-a07e-e440069f6c10" />
+
 
 ### 6. F1 Benchmark
 
-![F1 Benchmark](assets/f1-benchmark.png)
+<img width="1460" height="572" alt="image" src="https://github.com/user-attachments/assets/7051aa8e-03ec-4147-9e32-4a2eb176be24" />
+
+<img width="794" height="392" alt="image" src="https://github.com/user-attachments/assets/bebec3b4-29f6-40c0-aa8e-2deb6734bae2" />
 
 ---
 
@@ -523,7 +531,11 @@ REM:  0.502
 ---
 
 ## References
+1. Supratak, A., Dong, H., Wu, C., & Guo, Y. (2017). **DeepSleepNet: A Model for Automatic Sleep Stage Scoring Based on Raw Single-Channel EEG.** IEEE Transactions on Neural Systems and Rehabilitation Engineering, 25(11), 1998–2008.
 
+2. Kemp, B., Zwinderman, A. H., Tuk, B., Kamphuisen, H. A. C., & Oberye, J. J. L. (2000). **Analysis of a sleep-dependent neuronal feedback loop: the slow-wave microcontinuity of the EEG.** IEEE Transactions on Biomedical Engineering, 47(9), 1185–1194.
+
+3. Goldberger, A. L., Amaral, L. A. N., Glass, L., Hausdorff, J. M., Ivanov, P. C., Mark, R. G., Mietus, J. E., Moody, G. B., Peng, C. K., & Stanley, H. E. (2000). **PhysioBank, PhysioToolkit, and PhysioNet.** Circulation, 101(23), e215–e220.
 1. Supratak, A., Dong, H., Wu, C., & Guo, Y. (2017). **DeepSleepNet: A Model for Automatic Sleep Stage Scoring Based on Raw Single-Channel EEG.** IEEE Transactions on Neural Systems and Rehabilitation Engineering, 25(11), 1998–2008.
 
 2. Kemp, B., Zwinderman, A. H., Tuk, B., Kamphuisen, H. A. C., & Oberye, J. J. L. (2000). **Analysis of a sleep-dependent neuronal feedback loop: the slow-wave microcontinuity of the EEG.** IEEE Transactions on Biomedical Engineering, 47(9), 1185–1194.
